@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
 using namespace std;
 
@@ -6,44 +6,47 @@ using namespace std;
 
 class InterfacePen {
 public:
-    virtual void Show() const = 0;           //функция для вывода информации  
-    virtual double CalcInkUsage() const = 0; // функция для расчета расхода чернил
-    virtual ~InterfacePen() = 0;             //деструктор
+    virtual void Show() const = 0;           // функция для вывода информации (Чистая виртуальная функция: обязательна для реализации в наследниках. Выводит инфо.)
+    virtual double CalcInkUsage() const = 0; // функция для расчета расхода чернил (Чистая виртуальная функция: расчет расхода чернил.)
+    virtual ~InterfacePen() = 0;             // деструктор (Чистый виртуальный деструктор. Нужен, чтобы правильно удалять объекты через указатель.)
 };
 
-InterfacePen::~InterfacePen() {}
+InterfacePen::~InterfacePen() {} // реализация деструктора (даже чистый виртуальный деструктор должен иметь тело).
 
-//шаблонный базовый класс
+// шаблонный базовый класс
 
-template <typename T>
-class PenTemplate : public InterfacePen {
-protected:
-    static int num;
-    string brand;
-    string color;
-    int pagesWritten;
-    T inkCapacity;
+template <typename T>                      // объявление шаблона, где T — это тип данных (например, int или double) для емкости чернил.
+class PenTemplate : public InterfacePen {  // наследование от интерфейса.
+protected:                                 // поля доступны в этом классе и во всех классах-наследниках.
+    static int num;    // статическая переменная: общая для всех объектов этого типа ручек (счетчик).
+    string brand;      // марка ручки.
+    string color;      // цвет чернил.
+    int pagesWritten;  // сколько страниц уже написано.
+    T inkCapacity;     // емкость (тип T позволяет использовать и 100, и 100.5).
 
 public:
-    PenTemplate();
-    PenTemplate(string brand, string color, int pages, T inkCapacity);
-    PenTemplate(const PenTemplate<T>& other);
-    virtual ~PenTemplate();
+    PenTemplate();                                                     // конструктор по умолчанию.
+    PenTemplate(string brand, string color, int pages, T inkCapacity); // конструктор с параметрами.
+    PenTemplate(const PenTemplate<T>& other);                          // конструктор копирования.
+    virtual ~PenTemplate();                                            // виртуальный деструктор.
 
-    virtual void Show() const;
-    virtual double CalcInkUsage() const;
+    virtual void Show() const;           // метод вывода данных.
+    virtual double CalcInkUsage() const; // метод расчета расхода.
 
-    static void ShowNum();
+    static void ShowNum();               // статический метод для вывода общего количества созданных ручек.
 
+    // перегрузка оператора вывода <<. Позволяет писать "cout << pen".
     friend ostream& operator<<(ostream& os, const PenTemplate<T>& pen) {
         pen.Show();
         return os;
     }
 };
 
-template <typename T>  //позволяет определять тип данных
+// инициализация статического счетчика (изначально ручек 0).
+template <typename T>  // позволяет определять тип данных
 int PenTemplate<T>::num = 0;
 
+// конструктор по умолчанию: задает начальные значения и увеличивает счетчик.
 template <typename T>
 PenTemplate<T>::PenTemplate() {
     brand = "Unknown";
@@ -53,12 +56,14 @@ PenTemplate<T>::PenTemplate() {
     num++;
 }
 
+// конструктор с параметрами: использует список инициализации (после двоеточия).
 template <typename T>
 PenTemplate<T>::PenTemplate(string brand, string color, int pages, T inkCapacity)
     : brand(brand), color(color), pagesWritten(pages), inkCapacity(inkCapacity) {
     num++;
 }
 
+// конструктор копирования: создает дубликат существующего объекта.
 template <typename T>
 PenTemplate<T>::PenTemplate(const PenTemplate<T>& other)
     : brand(other.brand), color(other.color),
@@ -66,11 +71,13 @@ PenTemplate<T>::PenTemplate(const PenTemplate<T>& other)
     num++;
 }
 
+// деструктор: когда объект удаляется, счетчик ручек уменьшается.
 template <typename T>
 PenTemplate<T>::~PenTemplate() {
     num--;
 }
 
+// вывод базовой информации на экран.
 template <typename T>
 void PenTemplate<T>::Show() const {
     cout << "Pen Info:" << endl;
@@ -80,32 +87,34 @@ void PenTemplate<T>::Show() const {
     cout << "Ink capacity: " << inkCapacity << endl;
 }
 
+// базовый расчет чернил: просто страницы умножаем на 1.5.
 template <typename T>
 double PenTemplate<T>::CalcInkUsage() const {
     return pagesWritten * 1.5;
 }
 
+// вывод значения статического счетчика.
 template <typename T>
 void PenTemplate<T>::ShowNum() {
     cout << "Total pens created: " << num << endl;
 }
 
-//производные классы ball и gel наследуюстя от pentem......
-//ш.ручка
+// производные классы ball и gel наследуюстя от pentem......
+// ш.ручка
 
 template <typename T>
-class BallPenTemplate : public PenTemplate<T> {
+class BallPenTemplate : public PenTemplate<T> { // наследуется от базового шаблона.
 private:
-    double tipSize;
-    static int numBall;
+    double tipSize;     // уникальное поле: размер шарика (в мм).
+    static int numBall; // уникальный счетчик именно для шариковых ручек.
 
 public:
     BallPenTemplate();
     BallPenTemplate(string brand, string color, int pages, T inkCapacity, double tipSize);
     BallPenTemplate(const BallPenTemplate<T>& other);
 
-    void Show() const override;
-    double CalcInkUsage() const override;
+    void Show() const override;             // переопределение метода вывода.
+    double CalcInkUsage() const override;   // переопределение расчета.
 
     static void ShowNum();
 };
@@ -113,6 +122,7 @@ public:
 template <typename T>
 int BallPenTemplate<T>::numBall = 0;
 
+// конструкторы вызывают конструктор базового класса PenTemplate через список инициализации.
 template <typename T>
 BallPenTemplate<T>::BallPenTemplate()
     : PenTemplate<T>(), tipSize(0.7) {
@@ -131,6 +141,7 @@ BallPenTemplate<T>::BallPenTemplate(const BallPenTemplate<T>& other)
     numBall++;
 }
 
+// реализация Show: сначала вызываем Show родителя, потом добавляем свое.
 template <typename T>
 void BallPenTemplate<T>::Show() const {
     PenTemplate<T>::Show();
@@ -138,9 +149,10 @@ void BallPenTemplate<T>::Show() const {
     cout << "Tip size: " << tipSize << " mm" << endl;
 }
 
+// свой расчет расхода для шариковой ручки (коэффициент 1.2).
 template <typename T>
 double BallPenTemplate<T>::CalcInkUsage() const {
-    return this->pagesWritten * 1.2;
+    return this->pagesWritten * 1.2;    // this-> нужен, так как поле в шаблонном базовом классе.
 }
 
 template <typename T>
@@ -205,23 +217,24 @@ void GelPenTemplate<T>::ShowNum() {
     cout << "Gel pens created: " << numGel << endl;
 }
 
-//функции связывания
-//раннее связывание
+// функции связывания
+// раннее связывание: передача по значению. Тип объекта определен при компиляции.
 void EarlyBinding(PenTemplate<double> pen) {
     cout << "Early binding example:" << endl;
-    pen.Show();
+    pen.Show(); // всегда вызовет метод PenTemplate, даже если передали BallPen.
 }
 
-//позднее связывание
+// позднее связывание: передача по указателю на интерфейс.
 void LateBinding(InterfacePen* pen) {
     cout << "Late binding example:" << endl;
-    pen->Show();
+    pen->Show(); // благодаря виртуальным функциям вызовет метод того класса, который передали на самом деле.
 }
 
 int main() {
-    int choice;
+    int choice; // переменная для выбора в меню.
 
     do {
+        // текстовое меню
         cout << "\nChoose pen type:" << endl;
         cout << "1. Ball Pen" << endl;
         cout << "2. Gel Pen" << endl;
@@ -232,16 +245,16 @@ int main() {
         cin >> choice;
 
         if (choice == 1) {
-
+            // создаем объект шариковой ручки. T = double.
             BallPenTemplate<double> pen("Bic", "Blue", 50, 100.0, 0.5);
-            cout << pen << endl;
-            cout << "Ink usage: " << pen.CalcInkUsage() << endl;
-            BallPenTemplate<double>::ShowNum();
-            PenTemplate<double>::ShowNum();
+            cout << pen << endl;                                    // работает перегруженный оператор <<
+            cout << "Ink usage: " << pen.CalcInkUsage() << endl;    // полиморфный вызов
+            BallPenTemplate<double>::ShowNum();                     // счетчик шариковых
+            PenTemplate<double>::ShowNum();                         // общий счетчик
         }
 
         if (choice == 2) {
-
+            // создаем объект гелевой ручки.
             GelPenTemplate<double> pen("Pilot", "Black", 40, 120.0, true);
             cout << pen << endl;
             cout << "Ink usage: " << pen.CalcInkUsage() << endl;
@@ -251,15 +264,15 @@ int main() {
 
         if (choice == 3) {
             BallPenTemplate<double> pen("Test", "Red", 30, 80.0, 0.7);
-            EarlyBinding(pen);
+            EarlyBinding(pen); // демонстрация раннего связывания
         }
 
         if (choice == 4) {
             GelPenTemplate<double> pen("Test", "Green", 20, 90.0, false);
-            LateBinding(&pen);
+            LateBinding(&pen); // демонстрация позднего связывания (полиморфизма)
         }
 
-    } while (choice != 0);
+    } while (choice != 0); // цикл работает, пока не введем 0.
 
     return 0;
 }
