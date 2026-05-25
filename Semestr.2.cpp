@@ -246,8 +246,8 @@ int main() {
         cout << "Choice: ";
         cin >> choice;
 
-        if (choice < 0 || choice > 5) {
-    cout << "Число должно быть от 1 до 5" << endl;
+        if (choice < 0 || choice > 4) {
+    cout << "Число должно быть от 1 до 4" << endl;
     cin.ignore();
 
     continue;
