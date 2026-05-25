@@ -3,7 +3,9 @@
 using namespace std;
 
 //интерфейс
-
+/*интерфейсный класс содержит только виртуальные методы определения которых будут переопределены далее в классах потомках
+полей в интерфейсном классе нет
+const=0 отвечает за то, что функция не меняет поля класса, а =0 означает, что сейчас метод не имеет реализации и ее должны предоставить классы наследники*/
 class InterfacePen {
 public:
     virtual void Show() const = 0;           // функция для вывода информации (Чистая виртуальная функция: обязательна для реализации в наследниках. Выводит инфо.)
@@ -16,9 +18,9 @@ InterfacePen::~InterfacePen() {} // реализация деструктора 
 // шаблонный базовый класс
 
 template <typename T>                      // объявление шаблона, где T — это тип данных (например, int или double) для емкости чернил.
-class PenTemplate : public InterfacePen {  // наследование от интерфейса.
+class PenTemplate : public InterfacePen {  // наследование от интерфейса. (когда класс наследуется обязательна пометка доступа)
 protected:                                 // поля доступны в этом классе и во всех классах-наследниках.
-    static int num;    // статическая переменная: общая для всех объектов этого типа ручек (счетчик).
+    static int num;    // статическая переменная: общая для всех объектов этого типа ручек (счетчик). (глобальная переменная)
     string brand;      // марка ручки.
     string color;      // цвет чернил.
     int pagesWritten;  // сколько страниц уже написано.
@@ -26,7 +28,7 @@ protected:                                 // поля доступны в эт�
 
 public:
     PenTemplate();                                                     // конструктор по умолчанию.
-    PenTemplate(string brand, string color, int pages, T inkCapacity); // конструктор с параметрами.
+    PenTemplate(string brand, string color, int pages, T inkCapacity); // конструктор с параметрами. (перегрузка)
     PenTemplate(const PenTemplate<T>& other);                          // конструктор копирования.
     virtual ~PenTemplate();                                            // виртуальный деструктор.
 
@@ -60,7 +62,7 @@ PenTemplate<T>::PenTemplate() {
 template <typename T>
 PenTemplate<T>::PenTemplate(string brand, string color, int pages, T inkCapacity)
     : brand(brand), color(color), pagesWritten(pages), inkCapacity(inkCapacity) {
-    num++;
+    num++; //счетчик объекта
 }
 
 // конструктор копирования: создает дубликат существующего объекта.
@@ -112,7 +114,7 @@ public:
     BallPenTemplate();
     BallPenTemplate(string brand, string color, int pages, T inkCapacity, double tipSize);
     BallPenTemplate(const BallPenTemplate<T>& other);
-
+//override для классов потомков
     void Show() const override;             // переопределение метода вывода.
     double CalcInkUsage() const override;   // переопределение расчета.
 
@@ -244,6 +246,15 @@ int main() {
         cout << "Choice: ";
         cin >> choice;
 
+        if (choice < 0 || choice > 5) {
+    cout << "Число должно быть от 1 до 5" << endl;
+    cin.ignore();
+
+    continue;
+}
+
+cin.ignore(10000, '\n');
+        
         if (choice == 1) {
             // создаем объект шариковой ручки. T = double.
             BallPenTemplate<double> pen("Bic", "Blue", 50, 100.0, 0.5);
@@ -264,6 +275,7 @@ int main() {
 
         if (choice == 3) {
             BallPenTemplate<double> pen("Test", "Red", 30, 80.0, 0.7);
+            //вызывается обычный конструктор, далее созданный объект подается в аргумент функции раннего связывания, тем самым вызывается конструктор копирования
             EarlyBinding(pen); // демонстрация раннего связывания
         }
 
